@@ -28,8 +28,19 @@ WHERE length
 BETWEEN 90 AND 120;
 
 -- 7. Calcule a média do "rental_rate" dos filmes com classificação PG-13
+SELECT AVG(rental_rate) FROM film
+WHERE rating = 'PG-13';
+
 -- 8. Calcule a soma dos "replacement_cost" de todos os filmes classificados como R
+SELECT SUM(replacement_cost) FROM film 
+WHERE rating = 'R';
+
 -- 9. Mostre a média da duração dos filmes cujo título contém a palavra "super"
+SELECT AVG(length) FROM film
+WHERE title ILIKE '%super%';
+
 -- 10. Liste a média da duração dos filmes cujo "rating" seja "PG" ou "R"
+SELECT AVG(length) FROM film
+WHERE rating In ('PG', 'R');
 
 -- Questionário Link: https://forms.gle/G97RCkZi5xquQJ2f6
