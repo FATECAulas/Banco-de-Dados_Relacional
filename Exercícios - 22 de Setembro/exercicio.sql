@@ -39,13 +39,13 @@ CREATE TABLE employees (
     ON DELETE SET NULL
 );
 
-INSERT INTO employees (name) VALUES
-('Desenvolvimento'),
-('MARKETING'),
-('Desing'),
-('Segurança'),
-('RH');
-
+INSERT INTO employees (name, salary, department_id) VALUES
+('Ana Souza', 4500.00, 1),
+('Bruno Lima', 7200.50, 2),
+('Carlos Dias', 3000.00, 3),
+('Diana Rocha', 5500.75, 2),
+('Eduardo Silva', 0.00, 5),
+('Fernanda Melo', 4200.00, NULL);
 
 -- Exercício 5: Tabela de alunos
 -- Crie uma tabela chamada students (alunos)
@@ -56,8 +56,8 @@ INSERT INTO employees (name) VALUES
 CREATE TABLE students(
     id SERIAL PRIMARY KEY,
     name VARCHAR(100),
-    birth_date
-    created_at
+    birth_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -72,8 +72,8 @@ CREATE TABLE students(
 CREATE TABLE courses(
     id SERIAL PRIMARY KEY,
     name VARCHAR(60)NOT NULL,
-    status VARCHAR(20) CHECK
-    created_at
+    status VARCHAR(20) CHECK (status IN ('published','draft','inactive')),
+    created_at DATE DEFAULT CURRENT_DATE
 );
 
 
@@ -92,9 +92,11 @@ CREATE TABLE courses(
 -- Tente inserir alguns dados de teste em cada tabela para ver se as
 -- restrições (NOT NULL, UNIQUE, CHECK, etc.) funcionam conforme o
 -- esperado
-CREATE TABLE courses(
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(60)NOT NULL,
-    status VARCHAR(20) CHECK
-    created_at
+CREATE TABLE registrations (
+  student_id INTEGER NOT NULL,
+  course_id  INTEGER NOT NULL,
+  created_at DATE DEFAULT CURRENT_DATE,
+  PRIMARY KEY (student_id, course_id),
+  CONSTRAINT fk_reg_student FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+  CONSTRAINT fk_reg_course  FOREIGN KEY (course_id)  REFERENCES courses(id)  ON DELETE CASCADE
 );
