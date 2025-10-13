@@ -5,8 +5,11 @@
 -- (replacement_cost) acima de $20.00.
 SELECT title
 FROM film
-WHERE category = 'Horror'
-AND replacement_cost > 20.00;
+JOIN film_category 
+ON film.film_id = film_category.film_id
+JOIN category ON film_category.category_id = category.category_id
+WHERE category.name = 'Horror'
+AND film.replacement_cost > 20.00;
 
 
 
