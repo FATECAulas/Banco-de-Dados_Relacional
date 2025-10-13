@@ -6,21 +6,57 @@ CREATE TABLE USUARIO(
     Tipo VARCHAR(20) CHECK (Tipo IN ('Aluno','Coordenador','Professor', 'Empreendedor')) NOT NULL
 );
 
+INSERT INTO USUARIO (Email, Senha, Telefone, Tipo)
+SELECT
+    'usuario' || i || '@exemplo.com' AS Email,
+    'senha123' AS Senha,  -- você pode substituir por hash real se quiser
+    '+55' || (1000000000 + (i % 900000000)) AS Telefone,
+    CASE (i % 4)
+        WHEN 0 THEN 'Aluno'
+        WHEN 1 THEN 'Coordenador'
+        WHEN 2 THEN 'Professor'
+        WHEN 3 THEN 'Empreendedor'
+    END AS Tipo
+FROM generate_series(1, 1000) AS s(i);
+
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE SEMESTRE(
     id SERIAL PRIMARY KEY,
     Descricao CHAR(1) NOT NULL
 );
+
+INSERT INTO SEMESTRE (Descricao)
+SELECT 
+    CAST(((i - 1) % 8 + 1) AS CHAR(1)) AS Descricao
+FROM generate_series(1, 1000) AS s(i);
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE STATUS_PROJETO(
     id SERIAL PRIMARY KEY,
     Descricao VARCHAR(70) NOT NULL
 );
 
+INSERT INTO STATUS_PROJETO (Descricao)
+SELECT
+    CASE (i % 4)
+        WHEN 1 THEN 'Em Planejamento'
+        WHEN 2 THEN 'Em Andamento'
+        WHEN 3 THEN 'Concluído'
+        WHEN 0 THEN 'Cancelado'
+    END AS Descricao
+FROM generate_series(1, 1000) AS s(i);
+
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE GRUPO(
     id SERIAL PRIMARY KEY,
     SEMESTRE_id integer REFERENCES SEMESTRE (id),
     Nome VARCHAR(70) NOT NULL
 );
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE ALUNO(
     id SERIAL PRIMARY KEY,
@@ -30,11 +66,15 @@ CREATE TABLE ALUNO(
     Nome VARCHAR(70) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE HISTORICO_ALUNO(
     id SERIAL PRIMARY KEY,
     ALUNO_id integer REFERENCES ALUNO (id),
     GRUPO_id integer REFERENCES GRUPO (id)
 );
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE DOCENTE(
     id SERIAL PRIMARY KEY,
@@ -42,6 +82,8 @@ CREATE TABLE DOCENTE(
     Nome VARCHAR(70) NOT NULL,
     Papel VARCHAR(70) NOT NULL
 );
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE PROJETO(
     id SERIAL PRIMARY KEY,
@@ -56,6 +98,8 @@ CREATE TABLE PROJETO(
     Tipo VARCHAR(70) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE ENTREGA(
     id SERIAL PRIMARY KEY,
     PROJETO_id integer REFERENCES PROJETO (id),
@@ -65,6 +109,8 @@ CREATE TABLE ENTREGA(
     Link VARCHAR(300) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE EMPREENDEDOR(
     id SERIAL PRIMARY KEY,
     USUARIO_id integer REFERENCES USUARIO (id),
@@ -73,16 +119,22 @@ CREATE TABLE EMPREENDEDOR(
     CNPJ CHAR(14) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE COORDENADOR(
     id SERIAL PRIMARY KEY,
     USUARIO_id integer REFERENCES USUARIO (id),
     Nome VARCHAR(70) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE STATUS_AVALIACAO(
     id SERIAL PRIMARY KEY,
     Descricao VARCHAR(70) NOT NULL
 );
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE DEMANDA(
     id SERIAL PRIMARY KEY,
@@ -94,6 +146,8 @@ CREATE TABLE DEMANDA(
     Publico_Alvo VARCHAR(70) NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE PAREAMENTO(
     id SERIAL PRIMARY KEY,
     STATUS_PROJETO_id integer REFERENCES STATUS_PROJETO (id),
@@ -102,10 +156,14 @@ CREATE TABLE PAREAMENTO(
     Data DATE NOT NULL
 );
 
+-------------------------------------------------------------------------------------------------
+
 CREATE TABLE DIFICULDADE(
     id SERIAL PRIMARY KEY,
     Descricao VARCHAR(20) CHECK (Descricao IN ('Básico','Intermediário','Difícil')) NOT NULL
 );
+
+-------------------------------------------------------------------------------------------------
 
 CREATE TABLE AVALIACAO_DEMANDA(
     id SERIAL PRIMARY KEY,
