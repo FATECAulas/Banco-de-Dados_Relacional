@@ -471,3 +471,72 @@ SELECT
 FROM generate_series(1, 1000) AS s(i);
 
 -----------------------------------------VIEWS----------------------------------------------------
+-- Alunos por grupo e semestre
+CREATE OR REPLACE VIEW alunos_por_grupo_semestre_392521024 AS
+SELECT
+  aluno.id                   AS aluno_id,
+  aluno.nome                 AS nome_aluno,
+  aluno.ra                   AS ra,
+  usuario.id                 AS usuario_id,
+  usuario.email              AS usuario_email,
+  grupo.id                   AS grupo_id,
+  grupo.nome                 AS grupo_nome,
+  semestre.id                AS semestre_id,
+  semestre.descricao         AS semestre_descricao
+FROM aluno 
+LEFT JOIN usuario   ON aluno.usuario_id = usuario.id
+LEFT JOIN grupo     ON aluno.grupo_id = grupo.id
+LEFT JOIN semestre  ON g.semestre_id = semestre.id;
+
+SELECT * FROM alunos_por_grupo_semestre_392521024 WHERE semestre_descricao = '1' ORDER BY grupo_id, nome_aluno;
+
+
+-- Projetos detalhado (status, docente, grupo, demanda, pareamento)
+CREATE OR REPLACE VIEW vw_projetos_detalhado AS
+SELECT
+  p.id                      AS projeto_id,
+  p.titulo                  AS titulo,
+  p.descricao               AS descricao,
+  p.tipo                    AS tipo,
+  p.prazo                   AS prazo,
+  sp.id                     AS status_projeto_id,
+  sp.descricao              AS status_projeto_descricao,
+  doc.id                    AS docente_id,
+  doc.nome                  AS docente_nome,
+  g.id                      AS grupo_id,
+  g.nome                    AS grupo_nome,
+  d.id                      AS demanda_id,
+  d.titulo                  AS demanda_titulo,
+  par.id                    AS pareamento_id,
+  par.data                  AS pareamento_data
+FROM projeto p
+LEFT JOIN status_projeto sp ON p.status_projeto_id = sp.id
+LEFT JOIN docente doc      ON p.docente_id         = doc.id
+LEFT JOIN grupo g          ON p.grupo_id           = g.id
+LEFT JOIN demanda d        ON p.demanda_id         = d.id
+LEFT JOIN pareamento par   ON p.pareamento_id      = par.id;
+
+SELECT projeto_id, titulo, status_projeto_descricao, docente_nome, grupo_nome 
+FROM vw_projetos_detalhado 
+WHERE status_projeto_descricao = 'Em Andamento';
+
+-- Entregas com info do projeto e docente
+CREATE OR REPLACE VIEW vw_entregas_com_projeto AS
+SELECT
+  e.id AS entrega_id,
+  e.titulo AS entrega_titulo,
+  e.descricao AS entrega_descricao,
+  e.entrega AS entrega_data,
+  e.link AS entrega_link,
+  p.id AS projeto_id,
+  p.titulo AS projeto_titulo,
+  sp.id AS status_projeto_id,
+  sp.descricao AS status_projeto,
+  dp.id AS docente_id,
+  dp.nome AS docente_nome
+FROM entrega e
+LEFT JOIN projeto p ON e.projeto_id = p.id
+LEFT JOIN status_projeto sp ON p.status_projeto_id = sp.id
+LEFT JOIN docente dp ON p.docente_id = dp.id;
+
+SELECT * FROM vw_entregas_com_projeto WHERE entrega_data >= CURRENT_DATE ORDER BY entrega_data;
