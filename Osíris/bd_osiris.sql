@@ -486,57 +486,61 @@ SELECT
 FROM aluno 
 LEFT JOIN usuario   ON aluno.usuario_id = usuario.id
 LEFT JOIN grupo     ON aluno.grupo_id = grupo.id
-LEFT JOIN semestre  ON g.semestre_id = semestre.id;
+LEFT JOIN semestre  ON grupo.semestre_id = semestre.id;
 
-SELECT * FROM alunos_por_grupo_semestre_392521024 WHERE semestre_descricao = '1' ORDER BY grupo_id, nome_aluno;
+SELECT * FROM alunos_por_grupo_semestre_392521024 
+WHERE semestre_descricao = '1' 
+ORDER BY grupo_id, nome_aluno;
 
 
 -- Projetos detalhado (status, docente, grupo, demanda, pareamento)
-CREATE OR REPLACE VIEW vw_projetos_detalhado AS
+CREATE OR REPLACE VIEW projetos_detalhado_392521024 AS
 SELECT
-  p.id                      AS projeto_id,
-  p.titulo                  AS titulo,
-  p.descricao               AS descricao,
-  p.tipo                    AS tipo,
-  p.prazo                   AS prazo,
-  sp.id                     AS status_projeto_id,
-  sp.descricao              AS status_projeto_descricao,
-  doc.id                    AS docente_id,
-  doc.nome                  AS docente_nome,
-  g.id                      AS grupo_id,
-  g.nome                    AS grupo_nome,
-  d.id                      AS demanda_id,
-  d.titulo                  AS demanda_titulo,
-  par.id                    AS pareamento_id,
-  par.data                  AS pareamento_data
-FROM projeto p
-LEFT JOIN status_projeto sp ON p.status_projeto_id = sp.id
-LEFT JOIN docente doc      ON p.docente_id         = doc.id
-LEFT JOIN grupo g          ON p.grupo_id           = g.id
-LEFT JOIN demanda d        ON p.demanda_id         = d.id
-LEFT JOIN pareamento par   ON p.pareamento_id      = par.id;
+  projeto.id                    AS projeto_id,
+  projeto.titulo                AS titulo,
+  projeto.descricao             AS descricao,
+  projeto.tipo                  AS tipo,
+  projeto.prazo                 AS prazo,
+  status_projeto.id             AS status_projeto_id,
+  status_projeto.descricao      AS status_projeto_descricao,
+  docente.id                    AS docente_id,
+  docente.nome                  AS docente_nome,
+  grupo.id                      AS grupo_id,
+  grupo.nome                    AS grupo_nome,
+  demanda.id                    AS demanda_id,
+  demanda.titulo                AS demanda_titulo,
+  pareamento.id                 AS pareamento_id,
+  pareamento.data               AS pareamento_data
+FROM projeto 
+LEFT JOIN status_projeto  ON projeto.status_projeto_id = status_projeto.id
+LEFT JOIN docente         ON projeto.docente_id = docente.id
+LEFT JOIN grupo           ON projeto.grupo_id = grupo.id
+LEFT JOIN demanda         ON projeto.demanda_id = demanda.id
+LEFT JOIN pareamento      ON projeto.pareamento_id = pareamento.id;
 
 SELECT projeto_id, titulo, status_projeto_descricao, docente_nome, grupo_nome 
-FROM vw_projetos_detalhado 
+FROM projetos_detalhado_392521024 
 WHERE status_projeto_descricao = 'Em Andamento';
 
 -- Entregas com info do projeto e docente
-CREATE OR REPLACE VIEW vw_entregas_com_projeto AS
+CREATE OR REPLACE VIEW entregas_com_projeto_392521024 AS
 SELECT
-  e.id AS entrega_id,
-  e.titulo AS entrega_titulo,
-  e.descricao AS entrega_descricao,
-  e.entrega AS entrega_data,
-  e.link AS entrega_link,
-  p.id AS projeto_id,
-  p.titulo AS projeto_titulo,
-  sp.id AS status_projeto_id,
-  sp.descricao AS status_projeto,
-  dp.id AS docente_id,
-  dp.nome AS docente_nome
-FROM entrega e
-LEFT JOIN projeto p ON e.projeto_id = p.id
-LEFT JOIN status_projeto sp ON p.status_projeto_id = sp.id
-LEFT JOIN docente dp ON p.docente_id = dp.id;
+  entrega.id               AS entrega_id,
+  entrega.titulo           AS entrega_titulo,
+  entrega.descricao        AS entrega_descricao,
+  entrega.entrega          AS entrega_data,
+  entrega.link             AS entrega_link,
+  projeto.id               AS projeto_id,
+  projeto.titulo           AS projeto_titulo,
+  status_projeto.id        AS status_projeto_id,
+  status_projeto.descricao AS status_projeto,
+  docente.id               AS docente_id,
+  docente.nome             AS docente_nome
+FROM entrega 
+LEFT JOIN projeto         ON entrega.projeto_id = projeto.id
+LEFT JOIN status_projeto  ON projeto.status_projeto_id = status_projeto.id
+LEFT JOIN docente         ON projeto.docente_id = docente.id;
 
-SELECT * FROM vw_entregas_com_projeto WHERE entrega_data >= CURRENT_DATE ORDER BY entrega_data;
+SELECT * FROM entregas_com_projeto_392521024 
+WHERE entrega_data >= CURRENT_DATE 
+ORDER BY entrega_data;
